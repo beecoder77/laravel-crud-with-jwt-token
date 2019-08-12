@@ -14,7 +14,10 @@ class CreateMaterialsTable extends Migration
     public function up()
     {
         Schema::create('materials', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('uuid');
+            $table->String('thumbnail');
+            $table->String('title');
+            $table->text('content');
             $table->timestamps();
         });
     }
