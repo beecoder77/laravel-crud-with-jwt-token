@@ -15,18 +15,14 @@ use Illuminate\Http\Request;
 
 $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function($api){
-    $api->group(['middleware' => 'api.auth'], function ($api) {
-        $api->get('/me', function(){
-            $data = [
-                "name" => "Indra Hehe Aja",
-                "nickname" => "goeroeku",
-                "gender" => "Male",
-                "class" => "Pro Akut",
-            ];
-            return ['status' => 200, 'data' =>  $data];
-        });
-        $api->delete('/logout' , 'App\Http\Controllers\AuthController@logout');
+    $api->group(['middleware' => 'auth.jwt'], function ($api) {
+        $api->DELETE('logout', 'App\Http\Controllers\AuthController@logout');
+        $api->GET('me', 'App\Http\Controllers\AuthController@show');
+        $api->GET('index', 'App\Http\Controllers\MaterialController@index');
+        $api->POST('store', 'App\Http\Controllers\MaterialController@store');
+        $api->PATCH('update/{id}', 'App\Http\Controllers\MaterialController@update');
+        $api->DELETE('destroy/{id}', 'App\Http\Controllers\MaterialController@destroy');
     });
-    $api->post('/login' , 'App\Http\Controllers\AuthController@login');
-    $api->post('/register' , 'App\Http\Controllers\AuthController@register');
+    $api->POST('register', 'App\Http\Controllers\AuthController@register');
+    $api->POST('login', 'App\Http\Controllers\AuthController@login');
 });

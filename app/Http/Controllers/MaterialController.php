@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Material;
 use Illuminate\Http\Request;
+use Validator;
 
 class MaterialController extends Controller
 {
@@ -14,17 +15,8 @@ class MaterialController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $data = Material::all();
+        return $data;
     }
 
     /**
@@ -35,29 +27,34 @@ class MaterialController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $rules = [
+            'thumbnail' => 'required',
+            'title' => 'required',
+            'content' => 'required'
+        ];
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Material  $material
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Material $material)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Material  $material
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Material $material)
-    {
-        //
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response([
+                'messages' => $validator->messages()
+            ],401);
+        } else {
+            $data = [
+                'thumbnail' => $request->get('thumbnail'),
+                'title' => $request->get('title'),
+                'content' => $request->get('content')
+            ];
+            $store = Material::create($data);
+            if($store){
+                return response()->json([
+                    'message' => 'store berhasil'
+                ],200);
+            } else {
+                return response()->json([
+                    'message' => 'Failed to Store'
+                ],400);
+            }
+        }
     }
 
     /**
@@ -67,9 +64,37 @@ class MaterialController extends Controller
      * @param  \App\Material  $material
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Material $material)
+    public function update(Request $request, $id)
     {
-        //
+        $rules = [
+            'thumbnail' => 'required',
+            'title' => 'required',
+            'content' => 'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response([
+                'messages' => $validator->messages()
+            ], 401);
+        } else {
+            $material = Material::find($id);
+            $data = [
+                'thumbnail' => $request->get('thumbnail'),
+                'title' => $request->get('title'),
+                'content' => $request->get('content')
+            ];
+            $material->update($data);
+            if ($material) {
+                return response([
+                    'messages' => 'update berhasil'
+                ],200);
+            } else {
+                return response([
+                    'messages' => 'gagal update'
+                ],400);
+            }
+        }
     }
 
     /**
@@ -78,8 +103,13 @@ class MaterialController extends Controller
      * @param  \App\Material  $material
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Material $material)
+    public function destroy(Material $material, $id)
     {
-        //
+        $material = Material::find($id);
+        $material->delete();
+
+        return response([
+            'messages' => 'berhasil delete'
+        ]);
     }
 }

@@ -2,23 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\User;
+use JWTFactory;
+use JWTAuth;
+use Validator;
+use Response;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('api.auth');
-    }
-
     public function register(Request $request)
     {
         $user = User::create([
-             'name'    => $request->name,
+            'name' => $request->name,
              'email'    => $request->email,
-             'password' => bcrypt($request->password),
+             'password' =>  bcrypt($request->password),
          ]);
 
         $token = auth()->login($user);
@@ -26,8 +25,9 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
-    public function login(Request $request){
-        $credentials = $request->only('email', 'password');
+    public function login()
+    {
+        $credentials = request(['email', 'password']);
 
         if (! $token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
@@ -40,9 +40,18 @@ class AuthController extends Controller
     {
         auth()->logout();
 
-        return response()->json(['status' => '200', 'data' => 'Success']);
+        return response()->json(['message' => 'Successfully logged out']);
     }
 
+    public function show()
+    {
+        // Get the currently authenticated user
+        $user = auth()->user();
+        return response([
+            'name' => $user->name,
+            'email' => $user->email
+        ],200);
+    }
     protected function respondWithToken($token)
     {
         return response()->json([
