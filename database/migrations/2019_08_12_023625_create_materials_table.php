@@ -14,7 +14,7 @@ class CreateMaterialsTable extends Migration
     public function up()
     {
         Schema::create('materials', function (Blueprint $table) {
-            $table->bigIncrements('uuid');
+            $table->uuid('uuid');
             $table->String('thumbnail');
             $table->String('title');
             $table->text('content');
